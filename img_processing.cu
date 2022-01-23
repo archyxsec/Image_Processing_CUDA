@@ -96,8 +96,8 @@ extern "C" void gpuFilter(uint8_t *src, int width, int height, int loops, color_
 
 		/* intercambiamos los arrays */
 		tmp = d_src;
-	    d_src = d_dst;
-	    d_dst = tmp;
+	        d_src = d_dst;
+	        d_dst = tmp;
 	}
 
 	CUDA_SAFE_CALL( cudaGetLastError() );
