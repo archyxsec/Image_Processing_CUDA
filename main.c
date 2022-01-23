@@ -28,44 +28,41 @@ int main(int argc, char** argv) {
 	char *image;
 	color_t imageType;
 	
-	Usage(argc, argv, &image, &width, &height, &loops, &imageType);	
+	Uso(argc, argv, &image, &width, &height, &loops, &imageType);	
 
-	/* Host vectors */
 	uint8_t *src = NULL;
-	/* Count time */ 
-	uint64_t c = micro_time(); 
+	/*Variable para calcular el tiempo de ejecución*/
+	uint64_t execution_time = time_m(); 
 
-	/* Read bytes from picture */
+	/* Leemos los bytes de la foto */
 	if ((fd = open(image, O_RDONLY)) < 0) {
-		fprintf(stderr, "cannot open %s\n", argv[1]);
+		fprintf(stderr, "No se pudo abrir %s\n", argv[1]);
 		return EXIT_FAILURE;
 	}
-	size_t bytes = (imageType == GREY) ? height * width : height * width*3;	
+	size_t bytes = (imageType == GREY) ? height * width : height * width*3;	/*Comprobamos si queremos la imagen en Blanco y negro para solo multiplicar anchura*altura o también por 3(RGB)*/
 	src = (uint8_t *) calloc(bytes, sizeof(uint8_t));
-	read_all(fd, src, bytes);
+	read_img(fd, src, bytes);
 	close(fd);
 
-	gpuConvolute(src, width, height, loops, imageType);
+	gpuFilter(src, width, height, loops, imageType);
 
-	/* Create new picture - Write bytes */
 	int fd_out;
 	char *outImage = (char*) malloc((strlen(image) + 9) * sizeof(char));
 	strcpy(outImage, "blur_");
 	strcat(outImage, image);
 	if ((fd_out = open(outImage, O_CREAT | O_WRONLY, 0644)) == -1) {
-		fprintf(stderr, "cannot open-create %s\n", outImage);
+		fprintf(stderr, "No se pudo abrir o crear %s\n", outImage);
 		return EXIT_FAILURE;
 	}
-	write_all(fd_out, src, bytes);
+	write_img(fd_out, src, bytes);
 	close(fd_out);
 	free(outImage);
 
-	/* compute time */
-	c = micro_time() - c;
+	/* Calculamos el tiempo de ejecución */
+	execution_time = time_m() - execution_time;
 	double million = 1000 * 1000;
-	fprintf(stdout, "Execution time: %.3f sec\n", c / million);
+	fprintf(stdout, "Tiempo de ejecucion: %.3f sec\n", execution_time / million);
 
-    /* De-allocate space */
     free(src);
 	return EXIT_SUCCESS;
 }
