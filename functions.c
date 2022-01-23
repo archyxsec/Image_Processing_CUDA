@@ -23,9 +23,10 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <assert.h>
+#include <sys/time.h>
 #include "functions.h"
 
-void Usage(int argc, char **argv, char **image, int *width, int *height, int *loops, color_t *imageType) {
+void Uso(int argc, char **argv, char **image, int *width, int *height, int *loops, color_t *imageType) {
 	if (argc == 6 && !strcmp(argv[5], "grey")) {
 		*image = (char *)malloc((strlen(argv[1])+1) * sizeof(char));
 		strcpy(*image, argv[1]);	
@@ -41,12 +42,12 @@ void Usage(int argc, char **argv, char **image, int *width, int *height, int *lo
 		*loops = atoi(argv[4]);
 		*imageType = RGB;
 	} else {
-		fprintf(stderr, "Error Input!\n%s image_name width height loops [rgb/grey].\n", argv[0]);
+		fprintf(stderr, "Error de Entrada!\n%s <nombre_imagen> <ancho> <altura> <loops> [rgb/grey].\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 }
 
-int write_all(int fd , uint8_t* buff , int size) {
+int write_img(int fd , uint8_t* buff , int size) {
 	int n, sent;
 	for (sent = 0 ; sent < size ; sent += n)
 		if ((n = write(fd, buff + sent, size - sent)) == -1)
@@ -54,7 +55,7 @@ int write_all(int fd , uint8_t* buff , int size) {
 	return sent;
 }
 
-int read_all(int fd , uint8_t* buff , int size) {
+int read_img(int fd , uint8_t* buff , int size) {
 	int n, sent;
 	for (sent = 0 ; sent < size ; sent += n)
 		if ((n = read(fd, buff + sent, size - sent)) == -1)
@@ -62,9 +63,8 @@ int read_all(int fd , uint8_t* buff , int size) {
 	return sent;
 }
 
-uint64_t micro_time(void) {
+uint64_t time_m(void) {
 	struct timeval tv;
 	assert(gettimeofday(&tv, NULL) == 0);
 	return tv.tv_sec * 1000 * 1000 + tv.tv_usec;
 }
-
