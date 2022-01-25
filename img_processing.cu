@@ -23,23 +23,6 @@
 #include "device_launch_parameters.h"
 
 /*GPU kernel functions*/
-__global__ void kernel_filter_grey(uint8_t *src, uint8_t *dst, int width, int height) {
-	int i, j, k, l;
-	/* kernel filter */
-	int h[3][3] = {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
-
-	size_t x = blockIdx.x*blockDim.x + threadIdx.x;
-	size_t y = blockIdx.y*blockDim.y + threadIdx.y;
-
-	/* Aplicamos el filtro */
-	if (0 < x && x < height-1 && 0 < y && y < width-1) {
-		float val = 0;
-		for (i = x-1, k = 0 ; i <= x+1 ; i++, k++)
-			for (j = y-1, l = 0 ; j <= y+1 ; j++, l++)
-				val += src[width * i + j] * h[k][l] / 16.0;
-		dst[width * x + y] = val;
-	}
-}
 
 __global__ void kernel_filter_rgb(uint8_t *src, uint8_t *dst, int width, int height) {
 	int i, j, k, l;
@@ -68,7 +51,7 @@ __global__ void kernel_filter_rgb(uint8_t *src, uint8_t *dst, int width, int hei
 extern "C" void gpuFilter(uint8_t *src, int width, int height, int loops, color_t imageType)
 {
 	uint8_t *d_src, *d_dst, *tmp;
-	size_t bytes = (imageType == GREY) ? height * width : height * width*3;
+	size_t bytes = height * width*3;
 
     CUDA_SAFE_CALL( cudaMalloc(&d_src, bytes * sizeof(uint8_t)) );
     CUDA_SAFE_CALL( cudaMalloc(&d_dst, bytes * sizeof(uint8_t)) );
@@ -81,19 +64,11 @@ extern "C" void gpuFilter(uint8_t *src, int width, int height, int loops, color_
 	/*Repetimos el bucle loops veces (que indica el usuario)*/
 	for (t = 0 ; t < loops ; t++) {
 		
-		if (imageType == GREY) {
-			int gridX = FRACTION_CEILING(height, blockSize);
-			int gridY = FRACTION_CEILING(width, blockSize);
-			dim3 block(blockSize, blockSize);
-			dim3 grid(gridX, gridY);
-			kernel_filter_grey<<<grid, block>>>(d_src, d_dst, width, height);
-		} else if (imageType == RGB) {
-			int gridX = FRACTION_CEILING(height, blockSize);
-			int gridY = FRACTION_CEILING(width*3, blockSize);
-			dim3 block(blockSize, blockSize);
-			dim3 grid(gridX, gridY);
-			kernel_filter_rgb<<<grid, block>>>(d_src, d_dst, width, height);
-		}
+		int gridX = FRACTION_CEILING(height, blockSize);
+		int gridY = FRACTION_CEILING(width*3, blockSize);
+		dim3 block(blockSize, blockSize);
+		dim3 grid(gridX, gridY);
+		kernel_filter_rgb<<<grid, block>>>(d_src, d_dst, width, height);
 
 		/* intercambiamos los arrays */
 		tmp = d_src;

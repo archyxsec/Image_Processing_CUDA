@@ -27,22 +27,16 @@
 #include "functions.h"
 
 void Uso(int argc, char **argv, char **image, int *width, int *height, int *loops, color_t *imageType) {
-	if (argc == 6 && !strcmp(argv[5], "grey")) {
+
+	if (argc == 4) {
 		*image = (char *)malloc((strlen(argv[1])+1) * sizeof(char));
 		strcpy(*image, argv[1]);	
 		*width = atoi(argv[2]);
 		*height = atoi(argv[3]);
-		*loops = atoi(argv[4]);
-		*imageType = GREY;
-	} else if (argc == 6 && !strcmp(argv[5], "rgb")) {
-		*image = (char *)malloc((strlen(argv[1])+1) * sizeof(char));
-		strcpy(*image, argv[1]);	
-		*width = atoi(argv[2]);
-		*height = atoi(argv[3]);
-		*loops = atoi(argv[4]);
+		*loops = 1;
 		*imageType = RGB;
 	} else {
-		fprintf(stderr, "Error de Entrada!\n%s <nombre_imagen> <ancho> <altura> <loops> [rgb/grey].\n", argv[0]);
+		fprintf(stderr, "Error de Entrada!\n%s <nombre_imagen> <ancho> <altura>.\n", argv[0]);
 		exit(EXIT_FAILURE);
 	}
 }
