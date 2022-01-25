@@ -35,7 +35,7 @@
     cudaError err = call;												\
     if( cudaSuccess != err) {                                           \
         fprintf(stderr, "Cuda error en fichero '%s' en linea %i : %s.\n",   \
-                __FILE__, __LINE__, cudaGetErrorString( err) );         \
+                __FILE__, __LINE__, cudaGetErrorString( err));         \
         exit(EXIT_FAILURE);                                             \
     } }
 

@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include "functions.h"
+#include "img_processing.h"
 
 int main(int argc, char** argv) {
 	int fd, width, height, loops;

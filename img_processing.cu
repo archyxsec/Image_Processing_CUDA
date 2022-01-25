@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include "functions.h"
 #include "cuda_runtime.h"
+#include "img_processing.h"
 #include "device_launch_parameters.h"
 
 /*GPU kernel functions*/
@@ -101,7 +102,7 @@ extern "C" void gpuFilter(uint8_t *src, int width, int height, int loops, color_
 	}
 
 	CUDA_SAFE_CALL( cudaGetLastError() );
-	CUDA_SAFE_CALL( cudaThreadSynchronize() );
+	CUDA_SAFE_CALL( cudaDeviceSynchronize() );
     
     /* Copiamos el array de vuelta al host */
     if (loops%2 == 0) {
